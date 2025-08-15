@@ -1,8 +1,7 @@
-from functions.write_file import write_file
-
+from functions.run_python import run_python_file
 
 def main():
-    print(write_file("calculator", "/tmp/temp.txt", "this should not be allowed"))
+    print(run_python_file("calculator", "tests.py"))
 
 if __name__ == "__main__":
     main()

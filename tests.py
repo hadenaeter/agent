@@ -1,27 +1,36 @@
-from functions.write_file import write_file
-from functions.get_file_content import get_file_content
+from functions.run_python import run_python_file
 import unittest
 
 class TestGetFileContent(unittest.TestCase):
-    def test_write_file(self):
-        result = write_file("calculator", "lorem.txt", "wait, this isn't lorem ipsum")
+    def test_run_python_file(self):
+        result = run_python_file("calculator", "main.py")
+        expected = "Calculator App"
         print(result)
-        with open("calculator/lorem.txt", "r") as f:
-            contents = f.read()
-        self.assertEqual("wait, this isn't lorem ipsum", contents)
+        self.assertTrue(expected in result)
 
-    def test_write_new_file(self):
-        result = write_file("calculator", "pkg/morelorem.txt", "lorem ipsum dolor sit amet")
+    def test_calculation(self):
+        result = run_python_file("calculator", "main.py", ["3 + 5"])
+        expected = "3 + 5"
         print(result)
-        with open("calculator/pkg/morelorem.txt", "r") as f:
-            contents = f.read()
-            self.assertEqual("lorem ipsum dolor sit amet", contents)
+        self.assertTrue(expected in result)
 
-    def test_write_outside_boundary(self):
-        error = write_file("calculator", "/tmp/temp.txt", "this should not be allowed")
-        print(error)
-        self.assertEqual(error,
-            "Result for '/tmp/temp.txt' file:\n    Error: Cannot write to " + '"/tmp/temp.txt" as it is outside the permitted working directory')
+    def test_tests(self):
+        result = run_python_file("calculator", "tests.py")
+        expected = "tests in "
+        print(result)
+        self.assertTrue(expected in result)
+
+    def test_parent_dir(self):
+        result = run_python_file("calculator", "../main.py")
+        expected = "Error: "
+        print(result)
+        self.assertTrue(expected in result)
+
+    def test_non_existent_file(self):
+        result = run_python_file("calculator", "nonexistent.py")
+        expected = "Error:"
+        print(result)
+        self.assertTrue(expected in result)
 
 if __name__ == "__main__":
     unittest.main()
