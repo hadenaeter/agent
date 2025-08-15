@@ -52,10 +52,10 @@ def main():
             system_instruction=system_prompt)
     )
 
-    prompt_tokens = response.usage_metadata.prompt_token_count
-    response_tokens = response.usage_metadata.candidates_token_count
-    function_calls = response.function_calls
+    for candidate in response.candidates:
+        messages.append(candidate.content)
 
+    function_calls = response.function_calls
     for fc in function_calls:
         # Call the function
         fc_result = call_function(
@@ -64,6 +64,14 @@ def main():
                 args=fc.args
             )
         )
+        # POTENTIAL ERROR HEEEEEEEEEERRREEEEEEEEEEEE ****** BELOW ******
+        messages.append(types.Content(
+            role="user",
+            parts=[fc_result.parts]
+        )
+        )
+
+        types.Content(role="user", parts=[types.Part(text=user_prompt)])
 
         if not fc_result.parts[0].function_response.response:
             raise ValueError("Error: No function response returned.")
@@ -74,6 +82,8 @@ def main():
         printer.append(f"Calling function: {fc.name}({fc.args})")
 
     if args.verbose:
+        prompt_tokens = response.usage_metadata.prompt_token_count
+        response_tokens = response.usage_metadata.candidates_token_count
         printer.append(f"User prompt: {user_prompt}")
         printer.append(f"Prompt tokens: {prompt_tokens}")
         printer.append(f"Response tokens: {response_tokens}")
