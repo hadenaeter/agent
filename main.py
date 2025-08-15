@@ -44,42 +44,46 @@ def main():
         ]
     )
 
-    response = client.models.generate_content(
-        model='gemini-2.0-flash-001',
-        contents=messages,
-        config=types.GenerateContentConfig(
-            tools=[available_functions],
-            system_instruction=system_prompt)
-    )
-
-    for candidate in response.candidates:
-        messages.append(candidate.content)
-
-    function_calls = response.function_calls
-    for fc in function_calls:
-        # Call the function
-        fc_result = call_function(
-            types.FunctionCall(
-                name=fc.name,
-                args=fc.args
+    for i in range(20):
+        try:
+            response = client.models.generate_content(
+                model='gemini-2.0-flash-001',
+                contents=messages,
+                config=types.GenerateContentConfig(
+                    tools=[available_functions],
+                    system_instruction=system_prompt)
             )
-        )
-        # POTENTIAL ERROR HEEEEEEEEEERRREEEEEEEEEEEE ****** BELOW ******
-        messages.append(types.Content(
-            role="user",
-            parts=[fc_result.parts]
-        )
-        )
+            for candidate in response.candidates:
+                messages.append(candidate.content)
 
-        types.Content(role="user", parts=[types.Part(text=user_prompt)])
+            function_calls = response.function_calls or []
+            for fc in function_calls:
+                # Call the function
+                fc_result = call_function(
+                    types.FunctionCall(
+                        name=fc.name,
+                        args=fc.args
+                    )
+                )
+                messages.append(types.Content(
+                    role="user",
+                    parts=fc_result.parts
+                    )
+                )
+                if not fc_result.parts[0].function_response.response:
+                    raise ValueError("Error: No function response returned.")
+                else:
+                    if args.verbose:
+                        print(f"-> {fc_result.parts[0].function_response.response}")
 
-        if not fc_result.parts[0].function_response.response:
-            raise ValueError("Error: No function response returned.")
-        else:
-            if args.verbose:
-                print(f"-> {fc_result.parts[0].function_response.response}")
-
-        printer.append(f"Calling function: {fc.name}({fc.args})")
+            if response.text and not function_calls:
+                print("\n")
+                print(response.text)
+                print("\n")
+                break
+        except Exception as e:
+            print(f"EXCEPTION: {e}")
+            return (f"Error: {e}")
 
     if args.verbose:
         prompt_tokens = response.usage_metadata.prompt_token_count
@@ -87,8 +91,6 @@ def main():
         printer.append(f"User prompt: {user_prompt}")
         printer.append(f"Prompt tokens: {prompt_tokens}")
         printer.append(f"Response tokens: {response_tokens}")
-
-    printer.insert(0, response.text)
 
     for piece in printer:
         print(piece)
