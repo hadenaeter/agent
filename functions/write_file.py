@@ -1,4 +1,6 @@
 import os
+from google import genai
+from google.genai import types
 
 def write_file(working_directory, file_path, content):
     return_str = f"Result for '{file_path}' file:"
@@ -29,3 +31,21 @@ def write_file(working_directory, file_path, content):
         return return_str
 
     return return_str
+
+schema_write_file = types.FunctionDeclaration(
+    name="write_file",
+    description="overwrites a file with specified content. If the file does not exist, it is created and written. The same goes for any directories which don't exist yet. All constrained within working directory.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="the path to file to write."
+            ),
+            "content": types.Schema(
+                type=types.Type.STRING,
+                description="The content to write to the chosen file."
+            ),
+        },
+    ),
+)
