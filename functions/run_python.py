@@ -54,6 +54,7 @@ def run_python_file(working_directory, file_path, args=[]):
         return_str += f"Error: executing Python file: {e}"
         return return_str
 
+    print(f"\n\n{return_str}\n\n")
     return return_str
 
 schema_run_python = types.FunctionDeclaration(

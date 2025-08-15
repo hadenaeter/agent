@@ -30,6 +30,7 @@ def write_file(working_directory, file_path, content):
         return_str += f"\n    Error: {e}"
         return return_str
 
+    print(f"\n\n{return_str}\n\n")
     return return_str
 
 schema_write_file = types.FunctionDeclaration(

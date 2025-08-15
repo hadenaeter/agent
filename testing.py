@@ -1,7 +1,7 @@
-from functions.run_python import run_python_file
+from functions.call_function import call_function
 
 def main():
-    print(run_python_file("calculator", "tests.py"))
+    pass
 
 if __name__ == "__main__":
     main()

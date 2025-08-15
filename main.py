@@ -12,6 +12,8 @@ from functions.write_file import schema_write_file
 
 from functions.config import system_prompt
 
+from functions.call_function import call_function
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("prompt", help="The prompt to process")  # required positional arg
@@ -55,6 +57,20 @@ def main():
     function_calls = response.function_calls
 
     for fc in function_calls:
+        # Call the function
+        fc_result = call_function(
+            types.FunctionCall(
+                name=fc.name,
+                args=fc.args
+            )
+        )
+
+        if not fc_result.parts[0].function_response.response:
+            raise ValueError("Error: No function response returned.")
+        else:
+            if args.verbose:
+                print(f"-> {fc_result.parts[0].function_response.response}")
+
         printer.append(f"Calling function: {fc.name}({fc.args})")
 
     if args.verbose:

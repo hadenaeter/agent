@@ -30,6 +30,7 @@ def get_file_content(working_directory, file_path):
         return_str += f"\n    Error: {e}"
         return return_str
 
+    print(f"\n\n{return_str}\n\n")
     return return_str
 
 schema_get_file_content = types.FunctionDeclaration(

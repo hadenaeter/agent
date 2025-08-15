@@ -46,6 +46,7 @@ def get_files_info(working_directory, directory="."):
     for item in contents_str_list:
         return_str += f"\n{item}"
 
+    print(f"\n\n{return_str}\n\n")
     return return_str
 
 schema_get_files_info = types.FunctionDeclaration(
